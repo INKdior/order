@@ -1,0 +1,40 @@
+server:
+  port: 8070
+management:
+  endpoints:
+    # Actuator HTTP 配置项，对应 WebEndpointProperties 配置类
+    web:
+      exposure:
+        include: '*'
+        # 需要开放的端点。默认值只打开 health 和 info 两个端点。通过设置 * ，可以开放所有端点。
+spring:
+  redis:
+    host: 127.0.0.1
+    port: 6379
+  application:
+    name: gateway # 应用名
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: admin
+          uri: lb://admin
+          predicates: # 断言，作为路由的匹配条件，对应 RouteDefinition 数组
+            - Path=/admin/**
+          filters:
+            - name: Order
+            - StripPrefix=1
+        - id: project
+          uri: lb://project
+          predicates: # 断言，作为路由的匹配条件，对应 RouteDefinition 数组
+            - Path=/project/**
+          filters:
+            - name: Order
+            - StripPrefix=1
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka
